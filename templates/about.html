@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>About - GeoCrate</title>
+    <link
+      rel="icon"
+      type="image/png"
+      href="{{ url_for('static', filename='assets/logoPng.png') }}"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      :root {
+        --bg-color: #3f9fff;
+        --text-color: #1a1a1a;
+        --box-bg: #ffffff;
+        --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        --btn-bg: #0066cc;
+        --btn-hover: #004999;
+        --link-bg: #007bff;
+      }
+
+      .dark-mode {
+        --bg-color: #1e1e1e;
+        --text-color: #e0e0e0;
+        --box-bg: #2c2c2c;
+        --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        --btn-bg: #1565c0;
+        --btn-hover: #0e4a96;
+        --btn-color: #fff;
+        --link-bg: #1565c0;
+        --link-color: #fff;
+        --input-border: #666;
+      }
+
+      .dark-mode input[type="file"] {
+        background-color: #3c3c3c;
+        color: #e0e0e0;
+      }
+
+      .dark-mode input,
+      .dark-mode select {
+        background-color: #3c3c3c;
+        color: #e0e0e0;
+        border: 1px solid #555;
+      }
+
+      body {
+        font-family: "Segoe UI", sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        padding: 20px;
+        margin: 0;
+        transition: background-color 0.3s, color 0.3s;
+      }
+
+      .container {
+        background: var(--box-bg);
+        box-shadow: var(--box-shadow);
+        border-radius: 10px;
+        padding: 30px;
+        max-width: 850px;
+        margin: 60px auto;
+      }
+
+      h2 {
+        margin-top: 0;
+        font-size: 26px;
+      }
+      .logo-wrapper {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      .logo {
+        max-width: 180px;
+        height: auto;
+        display: none;
+      }
+      body:not(.dark-mode) .light-logo {
+        display: inline-block;
+      }
+      body.dark-mode .dark-logo {
+        display: inline-block;
+      }
+      .logo {
+        transition: opacity 0.3s ease-in-out;
+      }
+
+      h3 {
+        margin-top: 24px;
+        color: var(--text-color);
+      }
+
+      a {
+        color: var(--link-bg);
+        text-decoration: none;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+
+      ul {
+        padding-left: 20px;
+      }
+
+      .btn {
+        display: inline-block;
+        margin-top: 20px;
+        background-color: var(--btn-bg);
+        color: #fff;
+        padding: 10px 18px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        text-decoration: none;
+        font-size: 14px;
+        transition: background-color 0.3s;
+      }
+
+      .btn:hover {
+        background-color: var(--btn-hover);
+        text-decoration: none;
+        transform: scale(1.1);
+      }
+
+      #theme-toggle {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: none;
+        border: none;
+        font-size: 16px;
+        color: var(--text-color);
+        cursor: pointer;
+      }
+      #qrOverlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      }
+
+      #qrContent {
+        position: relative;
+        background: #fff;
+        padding: 20px;
+        border-radius: 12px;
+        text-align: center;
+        max-width: 320px;
+      }
+
+      #qrContent img {
+        max-width: 100%;
+        height: auto;
+      }
+
+      #closeQR {
+        position: absolute;
+        top: -12px;
+        right: -12px;
+        background: #ff4d4d;
+        color: #fff;
+        font-size: 20px;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        cursor: pointer;
+        line-height: 28px;
+        font-weight: bold;
+      }
+
+      .support {
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #ccc;
+      }
+
+      .dark-mode .support {
+        border-top: 1px solid #444;
+      }
+
+      .report {
+        margin-top: 15px;
+      }
+      .back2homebutton {
+        text-align: center;
+      }
+
+      footer {
+        text-align: center;
+        padding: 15px 0;
+        font-size: 14px;
+        color: var(--text-color);
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        background-color: var(--bg-color);
+        font: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <button onclick="toggleTheme()" id="theme-toggle">🌓 Toggle Theme</button>
+    <div class="container">
+      <div class="logo-wrapper">
+        <img
+          src="{{ url_for('static', filename='assets/GCS_light.png') }}"
+          alt="GeoCrate Logo Light"
+          class="logo light-logo"
+        />
+        <img
+          src="{{ url_for('static', filename='assets/GCS_dark.png') }}"
+          alt="GeoCrate Logo Dark"
+          class="logo dark-logo"
+        />
+      </div>
+
+      <p>
+        <strong>GeoCrate Studio</strong> is a non-profit, open-source platform
+        that allows users to generate RGB composites from satellite imagery
+        datasets such as <strong>Landsat</strong>, <strong>Sentinel</strong>,
+        and <strong>Indian Remote Sensing</strong> satellites like the
+        <strong>Resourcesat Series</strong>. Users can generate color composites
+        either <strong>automatically</strong> or <strong>manually</strong>
+        without performing complex processing steps. Whether you're a
+        researcher, student, or enthusiast, GeoCrate Studio simplifies the task
+        of visualizing satellite data into intuitive and accessible workflows.
+      </p>
+      <p>
+        <em>Note:</em> Automation features for additional satellites will be
+        available in future updates.
+      </p>
+
+      <h3>✨ Features</h3>
+      <ul>
+        <li>Automatic composite generation from .zip/.tar archives</li>
+        <li>Manual composite creation with RGB band upload</li>
+        <li>Easy masking using shapefiles</li>
+        <li>Download output as GeoTIFF or complete ZIP</li>
+      </ul>
+
+      <h3>📄 Supported Formats</h3>
+      <ul>
+        <li><strong>Imagery</strong>: .zip, .tar</li>
+        <li><strong>Bands</strong>: .tif or .jp2</li>
+        <li><strong>Mask</strong>: .zip (containing .shp, .shx, .dbf)</li>
+      </ul>
+
+      <h3>🛠️ GeoCrate Studio User Manual (Quick Guide)</h3>
+      <ul>
+        <li>Select the satellite family and model</li>
+        <li>Choose a composite type</li>
+        <li>Upload the satellite archive (.zip or .tar)</li>
+        <li>Upload a shapefile to crop/mask the image (Optional)</li>
+        <li>Click “Generate Composite” to view and download results</li>
+      </ul>
+
+      <h3>📬 Contact</h3>
+      <p>Email: <a href="mailto:19010c012@email.com">19010c012@gmail.com</a></p>
+
+      <div class="report">
+        <h3>🐞 Report Bug / Suggest Feature</h3>
+        <p>Help improve this tool by reporting any bugs or feature ideas:</p>
+        <a
+          class="btn"
+          href="mailto:19010c012@email.com?subject=Bug%20Report%20or%20Suggestion:%20Geocrate%20Studio"
+          >✉️ Send Feedback</a
+        >
+      </div>
+
+      <div class="support">
+        <h3>💖 Support Me</h3>
+        <p>If you found this tool useful, consider supporting the developer:</p>
+        <a class="btn" href="#">Donate</a>
+
+        <p style="margin-top: 10px">
+          This option is under development. If you want to donate,
+          <a href="#" onclick="showQR()">click this link</a>.
+        </p>
+      </div>
+
+      <!-- QR Overlay -->
+      <div id="qrOverlay" style="display: none">
+        <div id="qrContent">
+          <span id="closeQR" onclick="hideQR()">×</span>
+          <img
+            src="{{ url_for('static', filename='assets/qrcode.jpg') }}"
+            alt="Donate QR"
+          />
+        </div>
+      </div>
+      <p></p>
+      <p class="back2homebutton"><a class="btn" href="/">← Back to Home</a></p>
+    </div>
+
+    <script>
+      function toggleTheme() {
+        const isDark = document.body.classList.toggle("dark-mode");
+        localStorage.setItem("theme", isDark ? "dark" : "light");
+        document.getElementById("theme-toggle").innerText = isDark
+          ? "☀️ Day Mode"
+          : "🌙 Night Mode";
+      }
+
+      window.onload = function () {
+        const savedTheme = localStorage.getItem("theme");
+        if (savedTheme === "dark") {
+          document.body.classList.add("dark-mode");
+          document.getElementById("theme-toggle").innerText = "☀️ Day Mode";
+        }
+      };
+
+      function showQR() {
+        document.getElementById("qrOverlay").style.display = "flex";
+      }
+
+      function hideQR() {
+        document.getElementById("qrOverlay").style.display = "none";
+      }
+    </script>
+    <footer>Powered by GeoCrate™</footer>
+  </body>
+</html>

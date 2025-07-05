@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GeoCrate Studio</title>
+    <link
+      rel="icon"
+      type="image/png"
+      href="{{ url_for('static', filename='assets/logoPng.png') }}"
+    />
+    <style>
+      .dark-mode #loading-overlay {
+        background-color: rgba(0, 0, 0, 0.85);
+        color: #ffffff;
+      }
+
+      :root {
+        --bg-color: #3f9fff;
+        --text-color: #111;
+        --box-bg: #ffffff;
+        --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        --btn-bg: #0066cc;
+        --btn-hover: #004999;
+        --btn-color: #ffffff;
+        --link-bg: #007bff;
+        --link-color: #fff;
+        --input-border: #ccc;
+        --font: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      .dark-mode {
+        --bg-color: #1e1e1e;
+        --text-color: #e0e0e0;
+        --box-bg: #2c2c2c;
+        --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        --btn-bg: #1565c0;
+        --btn-hover: #0e4a96;
+        --btn-color: #fff;
+        --link-bg: #1565c0;
+        --link-color: #fff;
+        --input-border: #666;
+      }
+
+      .dark-mode input[type="file"] {
+        background-color: #3c3c3c;
+        color: #e0e0e0;
+      }
+
+      .dark-mode input,
+      .dark-mode select {
+        background-color: #3c3c3c;
+        color: #e0e0e0;
+        border: 1px solid #555;
+      }
+
+      body {
+        font-family: var(--font);
+        margin: 0;
+        padding: 20px;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        transition: background 0.3s, color 0.3s;
+      }
+
+      .container {
+        background-color: var(--box-bg);
+        box-shadow: var(--box-shadow);
+        border-radius: 12px;
+        max-width: 600px;
+        margin: auto;
+        margin-top: 40px;
+        padding: 20px;
+        position: relative;
+        transition: background 0.3s;
+      }
+
+      h2 {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      .logo-wrapper {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      .logo {
+        max-width: 180px;
+        height: auto;
+        display: none;
+      }
+      body:not(.dark-mode) .light-logo {
+        display: inline-block;
+      }
+      body.dark-mode .dark-logo {
+        display: inline-block;
+      }
+      .logo {
+        transition: opacity 0.3s ease-in-out;
+      }
+      label {
+        margin-top: 12px;
+        display: block;
+        font-weight: 500;
+        font-size: 14px;
+      }
+
+      select,
+      input[type="file"] {
+        width: 100%;
+        padding: 8px;
+        font-size: 13px;
+        margin-top: 5px;
+        border: 1px solid var(--input-border);
+        border-radius: 5px;
+        background-color: #fff;
+        box-sizing: border-box;
+      }
+
+      input[type="submit"] {
+        width: 100%;
+        padding: 10px;
+        margin-top: 20px;
+        font-size: 15px;
+        background-color: var(--btn-bg);
+        color: var(--btn-color);
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.3s;
+      }
+
+      input[type="submit"]:hover {
+        background-color: var(--btn-hover);
+      }
+
+      .about-link,
+      #theme-toggle {
+        position: absolute;
+        top: 12px;
+        padding: 6px 12px;
+        font-size: 13px;
+        text-decoration: none;
+        background-color: var(--link-bg);
+        color: var(--link-color);
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+      }
+
+      .about-link {
+        right: 12px;
+      }
+
+      #theme-toggle {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background-color: transparent;
+        border: none;
+        font-size: 16px;
+        cursor: pointer;
+        color: var(--text-color);
+      }
+
+      #toggle-mode-btn {
+        margin: 10px 0 20px;
+        width: 100%;
+        background-color: var(--link-bg);
+        color: var(--link-color);
+        font-size: 14px;
+        border: none;
+        border-radius: 6px;
+        padding: 10px;
+        cursor: pointer;
+      }
+
+      #manual-section {
+        display: none;
+      }
+
+      #loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(255, 255, 255, 0.85);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        font-size: 20px;
+        font-weight: bold;
+        z-index: 9999;
+      }
+
+      footer {
+        text-align: center;
+        padding: 15px 0;
+        font-size: 14px;
+        color: var(--text-color);
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        background-color: var(--bg-color);
+        font: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+    </style>
+    <script>
+      const satelliteModels = {
+        Landsat: ["Landsat-8", "Landsat-9"],
+        Sentinel: ["Sentinel-2"],
+        Indian: ["Resourcesat-2 Series", "IRS-P6"],
+      };
+
+      const composites = {
+        "Landsat-8": ["True Color", "False Color"],
+        "Landsat-9": ["True Color", "False Color"],
+        "Sentinel-2": ["True Color", "False Color"],
+        "Resourcesat-2 Series": ["False Color"],
+        "IRS-P6": ["False Color"],
+      };
+
+      function updateSatModels() {
+        const satFamily = document.getElementById("satellite").value;
+        const modelSelect = document.getElementById("sat_model");
+        modelSelect.innerHTML =
+          '<option value="">-- Select Satellite Model --</option>';
+        satelliteModels[satFamily]?.forEach((model) => {
+          const opt = document.createElement("option");
+          opt.value = model;
+          opt.innerText = model;
+          modelSelect.appendChild(opt);
+        });
+        modelSelect.disabled = false;
+        document.getElementById("composite").innerHTML =
+          '<option value="">-- Select Composite --</option>';
+      }
+
+      function updateComposites() {
+        const model = document.getElementById("sat_model").value;
+        const compositeSelect = document.getElementById("composite");
+        compositeSelect.innerHTML =
+          '<option value="">-- Select Composite --</option>';
+        (composites[model] || []).forEach((type) => {
+          const opt = document.createElement("option");
+          opt.value = type;
+          opt.innerText = type;
+          compositeSelect.appendChild(opt);
+        });
+        compositeSelect.disabled = false;
+      }
+
+      function toggleMode() {
+        const autoSection = document.getElementById("auto-section");
+        const manualSection = document.getElementById("manual-section");
+        const toggleButton = document.getElementById("toggle-mode-btn");
+
+        if (autoSection.style.display === "none") {
+          autoSection.style.display = "block";
+          manualSection.style.display = "none";
+          toggleButton.innerText = "🔧 Switch to Manual Mode";
+        } else {
+          autoSection.style.display = "none";
+          manualSection.style.display = "block";
+          toggleButton.innerText = "⚙️ Switch to Automatic Mode";
+        }
+      }
+
+      function showLoading() {
+        document.getElementById("loading-overlay").style.display = "flex";
+      }
+
+      function toggleTheme() {
+        const isDark = document.body.classList.toggle("dark-mode");
+        localStorage.setItem("theme", isDark ? "dark" : "light");
+        document.getElementById("theme-toggle").innerText = isDark
+          ? "☀️ Day Mode"
+          : "🌙 Night Mode";
+      }
+
+      window.onload = function () {
+        const savedTheme = localStorage.getItem("theme");
+        if (savedTheme === "dark") {
+          document.body.classList.add("dark-mode");
+          document.getElementById("theme-toggle").innerText = "☀️ Day Mode";
+        }
+      };
+    </script>
+  </head>
+  <body>
+    <div id="loading-overlay">⏳ Generating Composite. Please wait...</div>
+    <button onclick="toggleTheme()" id="theme-toggle">🌙 Night Mode</button>
+    <div class="container">
+      <a class="about-link" href="/about">ℹ️ About</a>
+      <div class="logo-wrapper">
+        <img
+          src="{{ url_for('static', filename='assets/GCS_light.png') }}"
+          alt="GeoCrate Logo Light"
+          class="logo light-logo"
+        />
+        <img
+          src="{{ url_for('static', filename='assets/GCS_dark.png') }}"
+          alt="GeoCrate Logo Dark"
+          class="logo dark-logo"
+        />
+      </div>
+
+      <button type="button" id="toggle-mode-btn" onclick="toggleMode()">
+        🔧 Switch to Manual Mode
+      </button>
+
+      <div id="auto-section">
+        <form
+          action="/create_composite"
+          method="POST"
+          enctype="multipart/form-data"
+          onsubmit="showLoading()"
+        >
+          <label>1. Select Satellite Family:</label>
+          <select
+            name="satellite"
+            id="satellite"
+            onchange="updateSatModels()"
+            required
+          >
+            <option value="">-- Select Satellite --</option>
+            <option value="Landsat">Landsat</option>
+            <option value="Sentinel">Sentinel</option>
+            <option value="Indian">Indian Satellites</option>
+          </select>
+
+          <label>2. Select Satellite Model:</label>
+          <select
+            name="sat_model"
+            id="sat_model"
+            onchange="updateComposites()"
+            disabled
+            required
+          >
+            <option value="">-- Select Satellite Model --</option>
+          </select>
+
+          <label>3. Select Composite Type:</label>
+          <select name="composite" id="composite" disabled required>
+            <option value="">-- Select Composite --</option>
+          </select>
+
+          <label>4. Upload ZIP or TAR (Max 2GB):</label>
+          <input type="file" name="imagery" accept=".zip,.tar" required />
+
+          <label>5. Optional Mask Shapefile (.zip):</label>
+          <input type="file" name="shapefile" accept=".zip" />
+
+          <input type="submit" value="Generate Composite" />
+        </form>
+      </div>
+
+      <div id="manual-section">
+        <form
+          action="/create_manual"
+          method="POST"
+          enctype="multipart/form-data"
+          onsubmit="showLoading()"
+        >
+          <label>1. Upload Red Band:</label>
+          <input type="file" name="red_band" required />
+
+          <label>2. Upload Green Band:</label>
+          <input type="file" name="green_band" required />
+
+          <label>3. Upload Blue Band:</label>
+          <input type="file" name="blue_band" required />
+
+          <label>4. Optional Mask Shapefile (.zip):</label>
+          <input type="file" name="shapefile" accept=".zip" />
+
+          <input type="submit" value="Generate Manual Composite" />
+        </form>
+      </div>
+    </div>
+    <footer>Powered by GeoCrate™</footer>
+  </body>
+</html>
